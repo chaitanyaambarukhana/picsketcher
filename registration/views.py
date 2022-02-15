@@ -20,7 +20,7 @@ class Register(APIView):
         )
             user.save()
         except:
-            return Response("Please enter a unique username or password")
+            return Response("Please enter a unique username or email")
 
         return Response({"success":True,"message":"user successfully registered"})
 
