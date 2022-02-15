@@ -7,18 +7,17 @@ from .models import RegisteredUsers
 
 # Create your views here.
 class Register(APIView):
-    def get(self, request):
+    def post(self, request):
         email = request.data["email"]
         password = request.data["password"]
         username = request.data["username"]
 
-        user = RegisteredUsers.objects.create(
+        try:
+            user = RegisteredUsers.objects.create(
             email=email,
             password=password,
             username=username
         )
-
-        try:
             user.save()
         except:
             return Response("Please enter a unique username or password")
@@ -27,7 +26,7 @@ class Register(APIView):
 
 
 class Login(APIView):
-    def get(self, request):
+    def post(self, request):
         email = request.data["email"]
         password = request.data["password"]
         
