@@ -3,6 +3,18 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+*.log
+*.pot
+*.pyc
+__pycache__
+db.sqlite3
+media
+**/migrations
+*.DS_Store
+**/__pycache__
+**/.DS_Store
+**
+
 # C extensions
 *.so
 
@@ -127,3 +139,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+registration/migrations/__init__.py
+.gitignore
+registration/migrations/0001_initial.py
