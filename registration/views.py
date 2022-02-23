@@ -4,6 +4,9 @@ from rest_framework.response import Response
 
 from .models import RegisteredUsers
 
+import numpy as np
+import cv2
+import base64
 
 # Create your views here.
 class Register(APIView):
@@ -38,3 +41,11 @@ class Login(APIView):
             return Response("User with the given email does not exist")
         
                
+               
+
+        
+    
+    
+    
+    
+    
