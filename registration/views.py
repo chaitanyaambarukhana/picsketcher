@@ -1,3 +1,4 @@
+from dataclasses import field
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -14,6 +15,15 @@ import base64
 
 class Register(APIView):
     def post(self, request):
+
+        field_names = sorted(
+            [field.name for field in RegisteredUsers._meta.get_fields()])
+        request_keys = sorted(request.data.keys())
+        field_names.remove("id")
+
+        if request_keys != field_names:
+            return Response("Some fields are missing.", status=status.HTTP_400_BAD_REQUEST)
+
         email = request.data["email"]
         password = request.data["password"]
         username = request.data["username"]
@@ -26,9 +36,9 @@ class Register(APIView):
             )
             user.save()
         except:
-            return Response("Please enter a unique username or email", status=status.HTTP_200_OK)
+            return Response("Please enter a unique username or email", status=status.HTTP_400_BAD_REQUEST)
 
-        return Response({"success": True, "message": "user successfully registered"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"success": True, "message": "user successfully registered"}, status=status.HTTP_200_OK)
 
 
 class Login(APIView):
