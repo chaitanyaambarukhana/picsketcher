@@ -52,9 +52,7 @@ class Register(APIView):
     def post(self, request):
         field_names = sorted(
             [field.name for field in RegisteredUsers._meta.get_fields()])
-        print(field_names)
         request_keys = sorted(request.data.keys())
-        print(request_keys)
         field_names.remove("id")
 
         if request_keys != field_names:
@@ -65,7 +63,7 @@ class Register(APIView):
         lastname = request.data["lastname"]
         if self.checkEmail(email):
             return Response({"success":False,"message":"Unable to register---Invalid Email Format"})
-        if not((firstname.isalpha()) and (lastname.isalpha())):
+        if not((re.search('[a-zA-Z]', firstname)) and (re.search('[a-zA-Z]', lastname))):
             return Response({"success":False,"message":"Unable to register---First and Last Name should be alphabetical"})
         if self.password_check(password):
             return Response({"success":False,"message":"incorrect password format--"+self.message})
@@ -102,8 +100,10 @@ class Login(APIView):
                 response=Response()
                 response.set_cookie(key='jwt',value=token,httponly=True)
                 response.data= {"success":True, "message":"Successfully logged in",'jwt':token}
-            
+                      
                 return response
+            else:
+                return Response({"success":False, "message":"Incorrect Passowrd"})
         except:
             return Response({"success":False,"message":"User with the given email does not exist"})
 class UserView(APIView):
