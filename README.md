@@ -4,7 +4,7 @@ git clone <URL>
   
 cd Picsketcher / in the root folder 
 
-pip install requirements.txt
+pip install -r requirements.txt
   
 run python manage.py makemigrations
   
