@@ -63,8 +63,8 @@ class Register(APIView):
         lastname = request.data["lastname"]
         if self.checkEmail(email):
             return Response({"success":False,"message":"Unable to register---Invalid Email Format"})
-        if not((re.search('[a-zA-Z]', firstname)) and (re.search('[a-zA-Z]', lastname))):
-            return Response({"success":False,"message":"Unable to register---First and Last Name should be alphabetical"})
+        if (re.search('[^a-zA-Z]', firstname)) and (re.search('[^a-zA-Z]', lastname)):
+            return Response({"success":False,"message":"Unable to register---Name Fields should be alphabetical"})
         if self.password_check(password):
             return Response({"success":False,"message":"incorrect password format--"+self.message})
 
