@@ -10,7 +10,7 @@ class Index(APIView):
 
 # Create your views here.
 class Register(APIView):
-    regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
+    regex = '^[A-Za-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
     message=''
     def checkEmail(self,email): 
         if(re.search(self.regex,email)): 
@@ -117,4 +117,11 @@ class UserView(APIView):
             return Response({"message":"unauthentiated"})
         user = RegisteredUsers.objects.filter(id=payload['id']).first()
         return Response({"success":True,"user":user.email})
+
+class LogOut(APIView):
+    def post(self,request):
+        token= request.COOKIES.get('jwt')
+        if not token:
+            return Response({"message":"unauthentiated"})
+        
                
