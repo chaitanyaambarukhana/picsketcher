@@ -2,6 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .models import RegisteredUsers
+from rest_framework_simplejwt.tokens import RefreshToken
 import jwt, datetime
 import re   
 class Index(APIView):
@@ -79,7 +80,7 @@ class Register(APIView):
         except:
             return Response({"success":False,"message":"Please enter a unique email"})
 
-        return Response({"success":True,"message":"user successfully registered"})
+        return Response({"success":True,"message":"user successfully registered","name":firstname+" "+lastname})
 
 
 class Login(APIView):
@@ -120,8 +121,15 @@ class UserView(APIView):
 
 class LogOut(APIView):
     def post(self,request):
-        token= request.COOKIES.get('jwt')
-        if not token:
-            return Response({"message":"unauthentiated"})
+        refresh_token = request.data['token']
+        if not refresh_token:
+            return Response({"success":True,"message":"unauthentiated"})
+        try:
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+
+            return Response(status=status.HTTP_205_RESET_CONTENT)
+        except Exception as e:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
         
-               
+        
