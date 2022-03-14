@@ -79,7 +79,7 @@ class Register(APIView):
         except:
             return Response({"success":False,"message":"Please enter a unique email"})
 
-        return Response({"success":True,"message":"user successfully registered","name":firstname+" "+lastname})
+        return Response({"success":True,"message":"user successfully registered"})
 
 
 class Login(APIView):
@@ -101,10 +101,10 @@ class Login(APIView):
                     token_user=Token.objects.create(token=token)
                     token_user.save()
                 except:
-                    return Response("token failed")
+                    return Response({"success":True, "message":"token failed"})
                 response=Response()
                 
-                response.data= {"success":True, "message":"Successfully logged in",'jwt':token}
+                response.data= {"success":True, "message":"Successfully logged in",'jwt':token,"Name":user.firstname+""+user.lastname}
                       
                 return response
             else:
