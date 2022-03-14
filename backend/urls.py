@@ -12,7 +12,6 @@ urlpatterns = [
     path("auth/", include('rest_framework.urls')),
     path("register/", registration.Register.as_view()),
     path("login/", registration.Login.as_view()),
-    path("userview/", registration.UserView.as_view()),
     path("logout/", registration.LogOut.as_view()),
     path("upload/", uploadimg.UploadImage.as_view())
 ]

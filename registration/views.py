@@ -1,49 +1,41 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import RegisteredUsers
-from rest_framework_simplejwt.tokens import RefreshToken
-import jwt
-import datetime
-import re
-
-
+from .models import RegisteredUsers,Token
+import jwt, datetime
+import re   
 class Index(APIView):
-    def post(self, request):
-        return Response({"Success": True})
+    def post(self,request):
+        return Response({"Success":True})
 
 # Create your views here.
-
-
 class Register(APIView):
     regex = '^[A-Za-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
-    message = ''
-
-    def checkEmail(self, email):
-        if(re.search(self.regex, email)):
+    message=''
+    def checkEmail(self,email): 
+        if(re.search(self.regex,email)): 
             return False
         else:
-            return True
-
-    def password_check(self, passwd):
-        SpecialSym = ['$', '@', '#', '%']
+            return True 
+    def password_check(self,passwd):
+        SpecialSym =['$', '@', '#', '%']
         val = False
         if len(passwd) < 8:
-            val = True
-            self.message = 'length should be at least 8'
+            val=True
+            self.message='length should be at least 8'
             return val
-
+            
         if len(passwd) > 20:
             val = True
-            self.message = 'length should be not be greater than 20'
+            self.message='length should be not be greater than 20'
             return val
-        if not any(char.isdigit() for char in passwd):
+        if not any(char.isdigit() for char in passwd): 
             val = True
-            self.message = 'Password should have at least one numeral'
+            self.message='Password should have at least one numeral'
             return val
         if not any(char.isupper() for char in passwd):
             val = True
-            self.message = 'Password should have at least one uppercase letter'
+            self.message  ='Password should have at least one uppercase letter'
             return val
         if not any(char.islower() for char in passwd):
             val = True
@@ -56,6 +48,7 @@ class Register(APIView):
         if val:
             return val
 
+    
     def post(self, request):
         field_names = sorted(
             [field.name for field in RegisteredUsers._meta.get_fields()])
@@ -69,75 +62,65 @@ class Register(APIView):
         firstname = request.data["firstname"]
         lastname = request.data["lastname"]
         if self.checkEmail(email):
-            return Response({"success": False, "message": "Unable to register---Invalid Email Format"})
+            return Response({"success":False,"message":"Unable to register---Invalid Email Format"})
         if (re.search('[^a-zA-Z]', firstname)) and (re.search('[^a-zA-Z]', lastname)):
-            return Response({"success": False, "message": "Unable to register---Name Fields should be alphabetical"})
+            return Response({"success":False,"message":"Unable to register---Name Fields should be alphabetical"})
         if self.password_check(password):
-            return Response({"success": False, "message": "incorrect password format--"+self.message})
+            return Response({"success":False,"message":"incorrect password format--"+self.message})
 
         try:
             user = RegisteredUsers.objects.create(
-                email=email,
-                password=password,
-                firstname=firstname,
-                lastname=lastname
-            )
+            email=email,
+            password=password,
+            firstname=firstname,
+            lastname=lastname
+        )
             user.save()
         except:
-            return Response({"success": False, "message": "Please enter a unique email"})
+            return Response({"success":False,"message":"Please enter a unique email"})
 
-        return Response({"success": True, "message": "user successfully registered", "name": firstname+" "+lastname})
+        return Response({"success":True,"message":"user successfully registered","name":firstname+" "+lastname})
 
 
 class Login(APIView):
-
+       
     def post(self, request):
         email = request.data["email"]
         password = request.data["password"]
         try:
             user = RegisteredUsers.objects.get(email=email)
             if user.password == password:
-                payload = {
+                payload={
                     'id': user.id,
-                    'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60),
-                    'iat': datetime.datetime.utcnow()
+                    'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=60),
+                    'iat':datetime.datetime.utcnow()
 
                 }
-                token = jwt.encode(payload, 'secret', algorithm='HS256')
-                response = Response()
-                response.set_cookie(key='jwt', value=token, httponly=True)
-                response.data = {
-                    "success": True, "message": "Successfully logged in", 'jwt': token}
-
+                token = jwt.encode(payload,'secret',algorithm='HS256')
+                try:
+                    token_user=Token.objects.create(token=token)
+                    token_user.save()
+                except:
+                    return Response("token failed")
+                response=Response()
+                
+                response.data= {"success":True, "message":"Successfully logged in",'jwt':token}
+                      
                 return response
             else:
-                return Response({"success": False, "message": "Incorrect Passowrd"})
+                return Response({"success":False, "message":"Incorrect Passowrd"})
         except:
-            return Response({"success": False, "message": "User with the given email does not exist"})
-
-
-class UserView(APIView):
-    def get(self, request):
-        token = request.COOKIES.get('jwt')
-        if not token:
-            return Response({"message": "unauthentiated"})
-        try:
-            payload = jwt.decode(token, 'secret', algorithms=["HS256"])
-        except:
-            return Response({"message": "unauthentiated"})
-        user = RegisteredUsers.objects.filter(id=payload['id']).first()
-        return Response({"success": True, "user": user.email})
-
-
+            return Response({"success":False,"message":"User with the given email does not exist"})
 class LogOut(APIView):
-    def post(self, request):
-        refresh_token = request.data['token']
+    def post(self,request):
+        refresh_token = Token.objects.all()
         if not refresh_token:
-            return Response({"success": True, "message": "unauthentiated"})
+            return Response({"success":False,"message":"unauthentiated"})
         try:
-            token = RefreshToken(refresh_token)
-            token.blacklist()
+            refresh_token.delete()
 
-            return Response(status=status.HTTP_205_RESET_CONTENT)
+            return Response({"success":True,"message":status.HTTP_205_RESET_CONTENT})
         except Exception as e:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response({"success":False,"message":status.HTTP_400_BAD_REQUEST})
+        
+        

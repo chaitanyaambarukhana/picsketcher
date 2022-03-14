@@ -18,3 +18,14 @@ class RegisteredUsers(models.Model):
 
     class Meta:
         db_table = "users"
+
+class Token(models.Model):
+    token = models.CharField(max_length=30, blank=False, null=False)
+
+    def __str__(self) -> str:
+        return self.token
+
+    class Meta:
+        db_table = "token"
+
+
