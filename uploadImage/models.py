@@ -12,4 +12,4 @@ class ImageStorage(models.Model):
         return self.email
 
     class Meta:
-        db_table = "Image_storage_db"
+        db_table = "Image_storage_data"

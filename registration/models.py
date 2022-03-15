@@ -17,15 +17,15 @@ class RegisteredUsers(models.Model):
         return self.email
 
     class Meta:
-        db_table = "users"
+        db_table = "users_data"
 
 class Token(models.Model):
-    token = models.CharField(max_length=30, blank=False, null=False)
+    token = models.CharField(max_length=1000, blank=False, null=False)
 
     def __str__(self) -> str:
         return self.token
 
     class Meta:
-        db_table = "token"
+        db_table = "token_data"
 
 

@@ -87,6 +87,7 @@ class Login(APIView):
     def post(self, request):
         email = request.data["email"]
         password = request.data["password"]
+        
         try:
             user = RegisteredUsers.objects.get(email=email)
             if user.password == password:
@@ -101,7 +102,7 @@ class Login(APIView):
                     token_user=Token.objects.create(token=token)
                     token_user.save()
                 except:
-                    return Response({"success":True, "message":"token failed"})
+                    return Response({"success":False, "message":"token failed"})
                 response=Response()
                 
                 response.data= {"success":True, "message":"Successfully logged in",'jwt':token,"Name":user.firstname+""+user.lastname}
