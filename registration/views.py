@@ -111,7 +111,7 @@ class Login(APIView):
                     return Response({"success":False, "message":"token failed"})
                 response=Response()
                 
-                response.data= {"success":True, "message":"Successfully logged in",'jwt':token,"Name":user.firstname+" "+user.lastname}
+                response.data= {"success":True, "message":"Successfully logged in",'jwt':token,"First Name":user.firstname,"Last Name":user.lastname}
                       
                 return response
             else:
