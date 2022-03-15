@@ -1,9 +1,4 @@
 from django.db import models
-
-
-# Create your models here.
-
-
 class RegisteredUsers(models.Model):
     email = models.EmailField(unique=True, blank=False,
                               max_length=250, null=False)
@@ -18,6 +13,7 @@ class RegisteredUsers(models.Model):
 
     class Meta:
         db_table = "users_data"
+
 
 class Token(models.Model):
     token = models.CharField(max_length=1000, blank=False, null=False)
