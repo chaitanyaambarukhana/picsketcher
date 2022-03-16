@@ -2,8 +2,23 @@
     "data1" : {
         "firstname": "varun",
         "lastname" : "D",
-        "email": "ftnikp1@gmail.com",
+        "email": "pppp1@gmail.com",
         "password": "Qtryu@123"
+
+    },
+
+    "data2":{
+        "firstname": "Nik",
+        "lastname" : "D",
+        "email": "nikezz@gmailcom",
+        "password": "Qtryu@123"
+
+    },
+    "data3":{
+        "firstname": "Nik",
+        "lastname" : "D",
+        "email": "camp@gmail.com",
+        "password": "Qtryu5623"
 
     }
 

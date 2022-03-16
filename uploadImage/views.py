@@ -33,7 +33,7 @@ class UploadImage(APIView):
     def render_image(self,image):
         try:
             img_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-            img_blur = cv2.GaussianBlur(img_gray, (21,21), 0, 0)
+            img_blur = cv2.GaussianBlur(img_gray, (45,45), 0, 0)
             img_blend = cv2.divide(img_gray, img_blur, scale=256)
         except:
             return Response({"success":False,"message":"Error in image filtering"})
