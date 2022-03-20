@@ -5,6 +5,7 @@ from .models import RegisteredUsers, Token
 import jwt
 import datetime
 import re
+import bcrypt
 
 
 class Index(APIView):
@@ -74,10 +75,14 @@ class Register(APIView):
         if self.password_check(password):
             return Response({"success": False, "message": "incorrect password format--"+self.message})
 
+        salt = bcrypt.gensalt()
+
+        hashed_password = bcrypt.hashpw(
+            password=password.encode("ascii"), salt=salt)
         try:
             user = RegisteredUsers.objects.create(
                 email=email,
-                password=password,
+                password=hashed_password.decode("ascii"),
                 firstname=firstname,
                 lastname=lastname
             )
@@ -92,32 +97,33 @@ class Login(APIView):
 
     def post(self, request):
         email = request.data["email"]
-        password = request.data["password"]
-        
+        password = request.data["password"].encode('ascii')
+
         try:
             user = RegisteredUsers.objects.get(email=email)
-            if user.password == password:
-                payload = {
-                    'id': user.id,
-                    'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30),
-                    'iat': datetime.datetime.utcnow()
-
-                }
-                token = jwt.encode(payload, 'secret', algorithm='HS256')
-                try:
-                    token_user = Token.objects.create(token=token)
-                    token_user.save()
-                except:
-                    return Response({"success":False, "message":"token failed"})
-                response=Response()
-                
-                response.data= {"success":True, "message":"Successfully logged in",'jwt':token,"First Name":user.firstname,"Last Name":user.lastname}
-                      
-                return response
-            else:
-                return Response({"success": False, "message": "Incorrect Passowrd"})
         except:
             return Response({"success": False, "message": "User with the given email does not exist"})
+
+        if bcrypt.checkpw(password, user.password.encode("ascii")):
+            payload = {
+                'id': user.id,
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30),
+                'iat': datetime.datetime.utcnow()
+            }
+            token = jwt.encode(payload, 'secret', algorithm='HS256')
+            try:
+                token_user = Token.objects.create(token=token)
+                token_user.save()
+            except:
+                return Response({"success": False, "message": "token failed"})
+            response = Response()
+
+            response.data = {"success": True, "message": "Successfully logged in",
+                             'jwt': token, "First Name": user.firstname, "Last Name": user.lastname}
+
+            return response
+        else:
+            return Response({"success": False, "message": "Incorrect Passowrd"})
 
 
 class LogOut(APIView):

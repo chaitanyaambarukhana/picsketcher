@@ -1,8 +1,10 @@
 from django.db import models
+
+
 class RegisteredUsers(models.Model):
     email = models.EmailField(unique=True, blank=False,
                               max_length=250, null=False)
-    password = models.CharField(max_length=20, blank=False, null=False)
+    password = models.CharField(max_length=200, blank=False, null=False)
     firstname = models.CharField(
         null=False, blank=False, max_length=250)
     lastname = models.CharField(
@@ -23,5 +25,3 @@ class Token(models.Model):
 
     class Meta:
         db_table = "token_data"
-
-
