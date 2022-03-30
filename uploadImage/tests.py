@@ -5,9 +5,7 @@ import json
 
 class ImageTestCase(TestCase):
     def setUp(self):
-        with open("uploadImage/testData.json") as jsonFile:
-            self.data = json.load(jsonFile)
-            jsonFile.close()
+        c
     def test_filter_image(self):
         self.bytes = self.data['data']['bytes']
         response = self.client.post("/upload/", data={

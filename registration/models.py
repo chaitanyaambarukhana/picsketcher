@@ -18,6 +18,7 @@ class RegisteredUsers(models.Model):
 
 
 class Token(models.Model):
+    id  = models.IntegerField(primary_key=True,blank=False,null = False)
     token = models.CharField(max_length=1000, blank=False, null=False)
 
     def __str__(self) -> str:
