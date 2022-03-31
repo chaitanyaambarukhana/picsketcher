@@ -17,7 +17,11 @@ class UploadImage(APIView):
     def encode_tf_image(self,tensor):
         squeezed_numpy= np.squeeze(tensor.numpy())
         # The model expects a batch of images, so add an axis with `tf.newaxis`.
-        encoded_image_bytes = base64.b64encode(squeezed_numpy).decode('utf-8')
+        # encoded_image_bytes = base64.b64encode(squeezed_numpy).decode('utf-8')
+        encoded_image_bytes = base64.b64encode(squeezed_numpy)
+        # r = base64.decodebytes(encoded_image_bytes)
+        # q = np.frombuffer(r, dtype=np.float32)
+        # arr1= np.reshape(q,(1500,1000,3))
         return encoded_image_bytes
 
     def load_image(self,image_base64):
