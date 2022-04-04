@@ -1,0 +1,4 @@
+db.sqlite3
+.ipynb_checkpoints
+migrations
+__pycache__
