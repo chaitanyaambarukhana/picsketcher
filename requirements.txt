@@ -96,12 +96,7 @@ tf-estimator-nightly==2.8.0.dev2021122109
 toml==0.10.2
 tornado==6.1
 traitlets==5.1.1
-<<<<<<< HEAD
-
 tensorflow-hub
-=======
-typing_extensions==4.1.1
->>>>>>> 346ffadd7e3d01c800d498d33336fc53cc1bab7a
 tzdata==2021.5
 urllib3==1.26.8
 wcwidth==0.2.5
