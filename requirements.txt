@@ -49,11 +49,7 @@ kiwisolver==1.4.2
 libclang==13.0.0
 Markdown==3.3.6
 MarkupSafe==2.0.1
-<<<<<<< HEAD
 matplotlib
-=======
-matplotlib==3.5.1
->>>>>>> 346ffadd7e3d01c800d498d33336fc53cc1bab7a
 matplotlib-inline==0.1.3
 nest-asyncio==1.5.4
 numpy==1.22.2
