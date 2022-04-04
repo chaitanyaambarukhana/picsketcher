@@ -70,11 +70,12 @@ class UploadImage(APIView):
     def post(self, request):
         #Gray Filter OpenCV
         bytes_text = request.data["image_bytes"] #load image bytes
-        image_s= self.decode_image(bytes_text) #decoding to np array
-        image_filtered = self.render_image(image_s) #applying filters
-        image_bytes = cv2.imencode('.jpg', image_filtered)#encoding filtered image
-        jpg_as_text = base64.b64encode(image_bytes[1]) #storing in bytes
-        #VanGogh Styling_Filter
+        bytes_type = request.data['style']
+        #loading filters
+        f = open('uploadImage/data_filters/data.json')
+        data = json.load(f)
+        f.close()
+        
         try:
             model = hub.load('https://tfhub.dev/google/magenta/arbitrary-image-stylization-v1-256/2')
         except:
@@ -84,27 +85,33 @@ class UploadImage(APIView):
         except:
             return Response({"success":False,"message":"Error in loading bytes of input image for VanGogh Styling"})
         #load style data
-        f = open('uploadImage/data_filters/data.json')
-        data = json.load(f)
-        # Closing file
-        f.close()
-        van_style_bytes = data['data']['van_bytes']
+        if bytes_type =='gray':
+            image_s= self.decode_image(bytes_text) #decoding to np array
+            image_filtered = self.render_image(image_s) #applying filters
+            image_bytes = cv2.imencode('.jpg', image_filtered)#encoding filtered image
+            image_bytes_b64 = base64.b64encode(image_bytes[1]) #storing in bytes
 
-        try:
-            van_bytes_style_tensor = self.load_image(van_style_bytes)
-        except:
-            return Response({"success":False,"message":"Error in loading bytes of style image for VanGogh Styling"})
-        image_result_van = model(tf.constant(input_tensor), tf.constant(van_bytes_style_tensor ))[0]
-        jpg_as_text_van = self.encode_tf_image(image_result_van)
+        elif bytes_type =='van':
+            #VanGogh Styling_Filter
+            van_style_bytes = data['data']['van_bytes']
 
-        #Chen Ke filtering
-        chen_style_bytes = data['data']['chen_bytes']
-
-        try:
-            chen_bytes_style_tensor = self.load_image(chen_style_bytes)
-        except:
-            return Response({"success":False,"message":"Error in loading bytes of style image for Chen Ke Styling"})
-        image_result_chen = model(tf.constant(input_tensor), tf.constant(chen_bytes_style_tensor ))[0]
-        jpg_as_text_chen = self.encode_tf_image(image_result_chen)
+            try:
+                van_bytes_style_tensor = self.load_image(van_style_bytes)
+            except:
+                return Response({"success":False,"message":"Error in loading bytes of style image for VanGogh Styling"})
+            image_result_van = model(tf.constant(input_tensor), tf.constant(van_bytes_style_tensor ))[0]
+            image_bytes_b64 = self.encode_tf_image(image_result_van)
+        elif bytes_type=='chen':
+            #Chen Ke filtering
+            chen_style_bytes = data['data']['chen_bytes']
+            try:
+                chen_bytes_style_tensor = self.load_image(chen_style_bytes)
+            except:
+                return Response({"success":False,"message":"Error in loading bytes of style image for Chen Ke Styling"})
+            image_result_chen = model(tf.constant(input_tensor), tf.constant(chen_bytes_style_tensor ))[0]
+            image_bytes_b64 = self.encode_tf_image(image_result_chen)
         #print(jpg_as_text_van)
-        return Response({"success":True,"image_bytes":{"gray":jpg_as_text,"VanGogh":jpg_as_text_van,"chenki":jpg_as_text_chen}})
+        else:
+            return Response({"success":False,"message":"Filter Not enrolled"})
+        
+        return Response({"success":True,"image_bytes":image_bytes_b64})
