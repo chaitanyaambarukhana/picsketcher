@@ -26,7 +26,7 @@ class Register(APIView):
             return True
 
     def password_check(self, passwd):
-        SpecialSym = ['$', '@', '#', '%']
+        SpecialSym = ['$', '@', '#', '%','!']
         val = False
         if len(passwd) < 8:
             val = True
@@ -111,15 +111,17 @@ class Login(APIView):
                 'iat': datetime.datetime.utcnow()
             }
             token = jwt.encode(payload, 'secret', algorithm='HS256')
+            fields = [f.name for f in Token._meta.get_fields()]
+            print(fields)
             try:
-                token_user = Token.objects.create(token=token,id = user.id)
+                token_user = Token.objects.create(token=token)
                 token_user.save()
             except:
-                return Response({"success": False, "message": "token failed"})
+                return Response({"success": False, "message": "token creation failed"})
             response = Response()
 
             response.data = {"success": True, "message": "Successfully logged in",
-                             'jwt': token, "First Name": user.firstname, "Last Name": user.lastname,"id":user.id}
+                             'jwt': token_user.token, "First Name": user.firstname, "Last Name": user.lastname,"token_id":token_user.id}
 
             return response
         else:
@@ -129,9 +131,7 @@ class Login(APIView):
 class LogOut(APIView):
     def post(self, request):
         id = request.data['id']
-        
         refresh_token = Token.objects.get(id =id)
-        print(refresh_token.token)
         if not refresh_token:
             return Response({"success": False, "message": "unauthentiated"})
         try:

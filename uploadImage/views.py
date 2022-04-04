@@ -9,20 +9,25 @@ import numpy as np
 import json
 import tensorflow as tf
 import tensorflow_hub as hub
-from PIL import Image
+import os
 import matplotlib.pyplot as plt
+import time
 
 
 class UploadImage(APIView):
     def encode_tf_image(self,tensor):
         squeezed_numpy= np.squeeze(tensor.numpy())
+        plt.imsave('data.png', squeezed_numpy)
+        time.sleep(5)
         # The model expects a batch of images, so add an axis with `tf.newaxis`.
-        # encoded_image_bytes = base64.b64encode(squeezed_numpy).decode('utf-8')
-        encoded_image_bytes = base64.b64encode(squeezed_numpy)
-        # r = base64.decodebytes(encoded_image_bytes)
-        # q = np.frombuffer(r, dtype=np.float32)
-        # arr1= np.reshape(q,(1500,1000,3))
-        return encoded_image_bytes
+        try:
+            img_arr = cv2.imread('data.png')
+        except:
+            return Response({"success":False,"message":"error in imread of result image"})
+        image_bytes = cv2.imencode('.png', img_arr)
+        img_arr_orig = base64.b64encode(image_bytes[1])
+        os.remove("data.png")
+        return img_arr_orig
 
     def load_image(self,image_base64):
         try:
@@ -101,5 +106,5 @@ class UploadImage(APIView):
             return Response({"success":False,"message":"Error in loading bytes of style image for Chen Ke Styling"})
         image_result_chen = model(tf.constant(input_tensor), tf.constant(chen_bytes_style_tensor ))[0]
         jpg_as_text_chen = self.encode_tf_image(image_result_chen)
-
+        #print(jpg_as_text_van)
         return Response({"success":True,"image_bytes":{"gray":jpg_as_text,"VanGogh":jpg_as_text_van,"chenki":jpg_as_text_chen}})
