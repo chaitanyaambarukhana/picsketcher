@@ -13,5 +13,8 @@ urlpatterns = [
     path("register/", registration.Register.as_view()),
     path("login/", registration.Login.as_view()),
     path("logout/", registration.LogOut.as_view()),
-    path("upload/", uploadimg.UploadImage.as_view())
+    path('getuser/',registration.GetUser.as_view()),
+    path("upload/", uploadimg.UploadImage.as_view()),
+    path("updateuser/",registration.UpdateUser.as_view()),
+    path("updatepassword/",registration.UpdatePassword.as_view())
 ]

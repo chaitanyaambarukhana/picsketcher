@@ -131,7 +131,7 @@ class Login(APIView):
 class LogOut(APIView):
     def post(self, request):
         id = int(request.data["id"])
-        refresh_token = Token.objects.get(id =id)
+        refresh_token = Token.objects.get(id=id)
         print(type(id))
         if not refresh_token:
             return Response({"success": False, "message": "unauthentiated"})
@@ -141,3 +141,61 @@ class LogOut(APIView):
             return Response({"success": True, "message": status.HTTP_205_RESET_CONTENT})
         except Exception as e:
             return Response({"success": False, "message": status.HTTP_400_BAD_REQUEST})
+
+
+class GetUser(APIView):
+    
+    def get(self, request):
+        id=int(request.data["id"])
+        try:
+            user = RegisteredUsers.objects.get(id=id)
+        except Exception as e:
+            return Response({"success": False, "message": "User with the given id does not exist"})
+        response = Response()
+        response.data = {"success": True,"First Name": user.firstname, "Last Name": user.lastname,"Email":user.email}
+        return response
+            
+        
+
+
+class UpdateUser(APIView):
+    def post(self, request):
+        id=int(request.data["id"])
+        updatedFirstName= request.data["updatedfirstname"]
+        updatedLastName=request.data["updatedlastname"]
+        try:
+            user= RegisteredUsers.objects.get(id=id)
+        except Exception as e:
+            return Response({"success":False,"message":"User with the given id does not exist."})
+        user.firstname=updatedFirstName
+        user.lastname=updatedLastName
+        user.save()
+        response= Response()
+        response.data = {"success": True,"message":"User data successfully updated","First Name": user.firstname, "Last Name": user.lastname,"Email":user.email}
+        return response
+
+
+        
+
+
+class UpdatePassword(APIView):
+    def post(self, request):
+        id= int(request.data["id"])
+        currentPassword=request.data['currentpassword'].encode('ascii')
+        
+        try:
+            user = RegisteredUsers.objects.get(id=id)
+        except:
+            return Response({"success": False, "message": "User with the given email does not exist"})
+
+        if bcrypt.checkpw(currentPassword, user.password.encode("ascii")):
+            salt = bcrypt.gensalt()
+            hashed_password = bcrypt.hashpw(password=request.data['updatedpassword'].encode("ascii"), salt=salt)
+            user.password=hashed_password.decode("ascii")
+            user.save()
+            return Response({"sucess":True,"message":"Password changed successfully."})
+
+        else:
+            return Response({"success": False, "message": "Current password is incorrect."})
+
+           
