@@ -112,7 +112,7 @@ class Login(APIView):
             }
             token = jwt.encode(payload, 'secret', algorithm='HS256')
             fields = [f.name for f in Token._meta.get_fields()]
-            print(fields)
+            
             try:
                 token_user = Token.objects.create(token=token)
                 token_user.save()
@@ -130,8 +130,9 @@ class Login(APIView):
 
 class LogOut(APIView):
     def post(self, request):
-        id = request.data['id']
+        id = int(request.data["id"])
         refresh_token = Token.objects.get(id =id)
+        print(type(id))
         if not refresh_token:
             return Response({"success": False, "message": "unauthentiated"})
         try:
