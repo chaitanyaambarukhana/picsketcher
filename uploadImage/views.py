@@ -136,10 +136,14 @@ class SaveImage(APIView):
         return Response({"success":True,"filter":img.filter,"user_id":img.user_id,"image_id":img.id,"created_time":img.date_created})
     def get(self,request):
         id = request.query_params.get('id')
+        get_by_user= request.query_params.get('isUser')
         try:
-            data = ImageStorage.objects.filter(user_id=id).values()
+            if get_by_user:
+                data = ImageStorage.objects.filter(user_id=id).values()
+            else:
+                data =ImageStorage.objects.get(id=id)
         except:
-            Response({"success":False,"message":"No data found"})
+            Response({"success":False,"message":"No data found in Database"})
         return JsonResponse({"success":True,"image_data": list(data)})
     def delete(self, request):
         id = request.data['id']
