@@ -1,5 +1,6 @@
 # Create your views here.
 
+import datetime
 from tkinter import Image
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -125,17 +126,14 @@ class SaveImage(APIView):
         img_bytes = request.data['image_bytes']
         filter_type= request.data['filter_type']
         user_id= request.data['id']
-        fields = [f.name for f in ImageStorage._meta.get_fields()]
-        print(fields)
-        
         try:
-            img = ImageStorage.objects.create(image =img_bytes,filter=filter_type,user_id = user_id)
+            img = ImageStorage.objects.create(image =img_bytes,filter=filter_type,user_id = user_id,date_created=datetime.datetime.now())
         except:
             return Response({"success":False,"message":"storing unsuccessful"})
         
         
         img.save()
-        return Response({"success":True,"filter":img.filter,"user_id":img.user_id,"image_id":img.id})
+        return Response({"success":True,"filter":img.filter,"user_id":img.user_id,"image_id":img.id,"created_time":img.date_created})
     def get(self,request):
         id = request.data['id']
         try:

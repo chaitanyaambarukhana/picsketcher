@@ -129,7 +129,6 @@ class LogOut(APIView):
     def post(self, request):
         id = int(request.data["id"])
         refresh_token = Token.objects.get(id=id)
-        print(type(id))
         if not refresh_token:
             return Response({"success": False, "message": "unauthentiated"})
         try:
