@@ -148,7 +148,7 @@ class LogOut(APIView):
 
 class GetUser(APIView):
     
-    def get(self, request):
+    def post(self, request):
         id=int(request.data["id"])
         try:
             user = RegisteredUsers.objects.get(id=id)
