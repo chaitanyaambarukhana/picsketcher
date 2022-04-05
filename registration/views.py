@@ -160,6 +160,8 @@ class UpdateUser(APIView):
         id=int(request.data["id"])
         updatedFirstName= request.data["updatedfirstname"]
         updatedLastName=request.data["updatedlastname"]
+        if (re.search('[^a-zA-Z]', updatedFirstName)) and (re.search('[^a-zA-Z]', updatedLastName)):
+            return Response({"success": False, "message": "Unable to register---Name Fields should be alphabetical"})
         try:
             user= RegisteredUsers.objects.get(id=id)
         except Exception as e:
@@ -172,17 +174,17 @@ class UpdateUser(APIView):
         return response
 
 
-        
 
 
 class UpdatePassword(APIView):
     def post(self, request):
         id= int(request.data["id"])
         currentPassword=request.data['currentpassword'].encode('ascii')
-        # try:
-        updated_pass=self.password_check(request.data['updatedpassword'])
-        # except:
-        #     return Response({"success":False,"message":"wrong password format"})
+        new_pass = str(request.data["updatedpassword"])
+        updated_pass=Register.password_check(self,new_pass)
+        if updated_pass:
+            return Response({"success":False,"message":"wrong password format"})
+       
         try:
             user = RegisteredUsers.objects.get(id=id)
         except:
@@ -190,7 +192,7 @@ class UpdatePassword(APIView):
 
         if bcrypt.checkpw(currentPassword, user.password.encode("ascii")):
             salt = bcrypt.gensalt()
-            hashed_password = bcrypt.hashpw(password=updated_pass.encode("ascii"), salt=salt)
+            hashed_password = bcrypt.hashpw(password=request.data['updatedpassword'].encode("ascii"), salt=salt)
             user.password=hashed_password.decode("ascii")
             user.save()
             return Response({"sucess":True,"message":"Password changed successfully."})
