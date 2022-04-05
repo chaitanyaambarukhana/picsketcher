@@ -125,7 +125,7 @@ class Login(APIView):
             response = Response()
 
             response.data = {"success": True, "message": "Successfully logged in",
-                             'jwt': token_user.token, "First Name": user.firstname, "Last Name": user.lastname,"token_id":token_user.id,"user_id":user.id}
+                             'jwt': token_user.token,"token_id":token_user.id,"user_id":user.id}
             return response
         else:
             return Response({"success": False, "message": "Incorrect Passowrd"})
@@ -155,7 +155,7 @@ class GetUser(APIView):
         except Exception as e:
             return Response({"success": False, "message": "User with the given id does not exist"})
         response = Response()
-        response.data = {"success": True,"First Name": user.firstname, "Last Name": user.lastname,"Email":user.email}
+        response.data = {"success": True,"First Name": user.firstname, "Last Name": user.lastname}
         return response
             
         
