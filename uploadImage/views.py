@@ -2,6 +2,7 @@
 
 import datetime
 from tkinter import Image
+from webbrowser import get
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import ImageStorage
@@ -136,14 +137,19 @@ class SaveImage(APIView):
         return Response({"success":True,"filter":img.filter,"user_id":img.user_id,"image_id":img.id,"created_time":img.date_created})
     def get(self,request):
         id = request.query_params.get('id')
-        get_by_user= request.query_params.get('isUser')
-        try:
-            if get_by_user:
+        get_by_user= request.query_params.get('is_User')
+        if str(get_by_user).lower() =='true':
+            try:
+                print(str(get_by_user))
                 data = ImageStorage.objects.filter(user_id=id).values()
-            else:
+            except:
+                Response({"success":False,"message":"No data related to user id found in Database"})
+        else:
+            try:
+                print("false")
                 data=ImageStorage.objects.filter(id=id).values()
-        except:
-            Response({"success":False,"message":"No data found in Database"})
+            except:
+                Response({"success":False,"message":"No data related to image id found in Database"})
         return JsonResponse({"success":True,"image_data": list(data)})
     def delete(self, request):
         id = request.data['id']
