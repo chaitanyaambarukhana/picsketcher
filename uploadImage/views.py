@@ -135,7 +135,7 @@ class SaveImage(APIView):
         img.save()
         return Response({"success":True,"filter":img.filter,"user_id":img.user_id,"image_id":img.id,"created_time":img.date_created})
     def get(self,request):
-        id = request.data['id']
+        id = request.query_params.get('id')
         try:
             data = ImageStorage.objects.filter(user_id=id).values()
         except:
