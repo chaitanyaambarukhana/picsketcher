@@ -1,5 +1,6 @@
 # Create your views here.
 
+from tkinter import Image
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import ImageStorage
@@ -12,6 +13,9 @@ import tensorflow_hub as hub
 import os
 import matplotlib.pyplot as plt
 import time
+from django.http import JsonResponse
+
+
 
 
 class UploadImage(APIView):
@@ -115,3 +119,36 @@ class UploadImage(APIView):
             return Response({"success":False,"message":"Filter Not enrolled"})
         
         return Response({"success":True,"image_bytes":image_bytes_b64})
+
+class SaveImage(APIView):
+    def post(self,request):
+        img_bytes = request.data['image_bytes']
+        filter_type= request.data['filter_type']
+        user_id= request.data['id']
+        fields = [f.name for f in ImageStorage._meta.get_fields()]
+        print(fields)
+        
+        try:
+            img = ImageStorage.objects.create(image =img_bytes,filter=filter_type,user_id = user_id)
+        except:
+            return Response({"success":False,"message":"storing unsuccessful"})
+        
+        
+        img.save()
+        return Response({"success":True,"filter":img.filter,"user_id":img.user_id,"image_id":img.id})
+    def get(self,request):
+        id = request.data['id']
+        try:
+            data = ImageStorage.objects.filter(user_id=id).values()
+        except:
+            Response({"success":False,"message":"No data found"})
+        return JsonResponse({"success":True,"image_data": list(data)})
+    def delete(self, request):
+        id = request.data['id']
+        del_by_user= request.data['isUser']
+        if del_by_user:
+            del_item =ImageStorage.objects.filter(user_id=id)
+        else:
+            del_item = ImageStorage.objects.get(id=id)
+        del_item.delete()
+        return Response({"success":"True"})

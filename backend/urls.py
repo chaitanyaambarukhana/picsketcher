@@ -16,5 +16,6 @@ urlpatterns = [
     path('getuser/',registration.GetUser.as_view()),
     path("upload/", uploadimg.UploadImage.as_view()),
     path("updateuser/",registration.UpdateUser.as_view()),
-    path("updatepassword/",registration.UpdatePassword.as_view())
+    path("updatepassword/",registration.UpdatePassword.as_view()),
+    path("save/",uploadimg.SaveImage.as_view())
 ]

@@ -111,8 +111,12 @@ class Login(APIView):
                 'iat': datetime.datetime.utcnow()
             }
             token = jwt.encode(payload, 'secret', algorithm='HS256')
-            fields = [f.name for f in Token._meta.get_fields()]
-            
+            # fields = [f.name for f in Token._meta.get_fields()]
+            # print(fields)
+            # fields_user = [f.name for f in RegisteredUsers._meta.get_fields()]
+            # print(fields_user)
+            # token_user = Token.objects.create(token=token)
+            # token_user.save()
             try:
                 token_user = Token.objects.create(token=token)
                 token_user.save()
@@ -121,8 +125,7 @@ class Login(APIView):
             response = Response()
 
             response.data = {"success": True, "message": "Successfully logged in",
-                             'jwt': token_user.token, "First Name": user.firstname, "Last Name": user.lastname,"token_id":token_user.id}
-
+                             'jwt': token_user.token, "First Name": user.firstname, "Last Name": user.lastname,"token_id":token_user.id,"user_id":user.id}
             return response
         else:
             return Response({"success": False, "message": "Incorrect Passowrd"})
