@@ -6,7 +6,7 @@ from django_base64field.fields import Base64Field
 
 
 class ImageStorage(models.Model):
-    image = Base64Field(max_length=9999, blank=False, null=False)
+    image = Base64Field(max_length=9999999999, blank=False, null=False)
     filter = models.TextField(max_length=100,blank=False)
     user_id = models.IntegerField(blank=False)
     

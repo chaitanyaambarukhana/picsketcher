@@ -111,12 +111,6 @@ class Login(APIView):
                 'iat': datetime.datetime.utcnow()
             }
             token = jwt.encode(payload, 'secret', algorithm='HS256')
-            # fields = [f.name for f in Token._meta.get_fields()]
-            # print(fields)
-            # fields_user = [f.name for f in RegisteredUsers._meta.get_fields()]
-            # print(fields_user)
-            # token_user = Token.objects.create(token=token)
-            # token_user.save()
             try:
                 token_user = Token.objects.create(token=token)
                 token_user.save()
@@ -185,7 +179,10 @@ class UpdatePassword(APIView):
     def post(self, request):
         id= int(request.data["id"])
         currentPassword=request.data['currentpassword'].encode('ascii')
-        
+        # try:
+        updated_pass=self.password_check(request.data['updatedpassword'])
+        # except:
+        #     return Response({"success":False,"message":"wrong password format"})
         try:
             user = RegisteredUsers.objects.get(id=id)
         except:
@@ -193,7 +190,7 @@ class UpdatePassword(APIView):
 
         if bcrypt.checkpw(currentPassword, user.password.encode("ascii")):
             salt = bcrypt.gensalt()
-            hashed_password = bcrypt.hashpw(password=request.data['updatedpassword'].encode("ascii"), salt=salt)
+            hashed_password = bcrypt.hashpw(password=updated_pass.encode("ascii"), salt=salt)
             user.password=hashed_password.decode("ascii")
             user.save()
             return Response({"sucess":True,"message":"Password changed successfully."})
