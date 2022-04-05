@@ -141,7 +141,7 @@ class SaveImage(APIView):
             if get_by_user:
                 data = ImageStorage.objects.filter(user_id=id).values()
             else:
-                data =ImageStorage.objects.get(id=id)
+                data=ImageStorage.objects.filter(id=id).values()
         except:
             Response({"success":False,"message":"No data found in Database"})
         return JsonResponse({"success":True,"image_data": list(data)})
