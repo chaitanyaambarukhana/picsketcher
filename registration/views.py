@@ -26,7 +26,7 @@ class Register(APIView):
             return True
 
     def password_check(self, passwd):
-        SpecialSym = ['$', '@', '#', '%']
+        SpecialSym = ['$', '@', '#', '%','!']
         val = False
         if len(passwd) < 8:
             val = True
@@ -112,15 +112,14 @@ class Login(APIView):
             }
             token = jwt.encode(payload, 'secret', algorithm='HS256')
             try:
-                token_user = Token.objects.create(token=token,id = user.id)
+                token_user = Token.objects.create(token=token)
                 token_user.save()
             except:
-                return Response({"success": False, "message": "token failed"})
+                return Response({"success": False, "message": "token creation failed"})
             response = Response()
 
             response.data = {"success": True, "message": "Successfully logged in",
-                             'jwt': token, "First Name": user.firstname, "Last Name": user.lastname,"id":user.id}
-
+                             'jwt': token_user.token,"token_id":token_user.id,"user_id":user.id}
             return response
         else:
             return Response({"success": False, "message": "Incorrect Passowrd"})
@@ -128,10 +127,8 @@ class Login(APIView):
 
 class LogOut(APIView):
     def post(self, request):
-        id = request.data['id']
-        
-        refresh_token = Token.objects.get(id =id)
-        print(refresh_token.token)
+        id = int(request.data["id"])
+        refresh_token = Token.objects.get(id=id)
         if not refresh_token:
             return Response({"success": False, "message": "unauthentiated"})
         try:
@@ -140,3 +137,66 @@ class LogOut(APIView):
             return Response({"success": True, "message": status.HTTP_205_RESET_CONTENT})
         except Exception as e:
             return Response({"success": False, "message": status.HTTP_400_BAD_REQUEST})
+
+
+class GetUser(APIView):
+    
+    def post(self, request):
+        id=int(request.data["id"])
+        try:
+            user = RegisteredUsers.objects.get(id=id)
+        except Exception as e:
+            return Response({"success": False, "message": "User with the given id does not exist"})
+        response = Response()
+        response.data = {"success": True,"First Name": user.firstname, "Last Name": user.lastname}
+        return response
+            
+        
+
+
+class UpdateUser(APIView):
+    def post(self, request):
+        id=int(request.data["id"])
+        updatedFirstName= request.data["updatedfirstname"]
+        updatedLastName=request.data["updatedlastname"]
+        if (re.search('[^a-zA-Z]', updatedFirstName)) and (re.search('[^a-zA-Z]', updatedLastName)):
+            return Response({"success": False, "message": "Unable to register---Name Fields should be alphabetical"})
+        try:
+            user= RegisteredUsers.objects.get(id=id)
+        except Exception as e:
+            return Response({"success":False,"message":"User with the given id does not exist."})
+        user.firstname=updatedFirstName
+        user.lastname=updatedLastName
+        user.save()
+        response= Response()
+        response.data = {"success": True,"message":"User data successfully updated","First Name": user.firstname, "Last Name": user.lastname,"Email":user.email}
+        return response
+
+
+
+
+class UpdatePassword(APIView):
+    def post(self, request):
+        id= int(request.data["id"])
+        currentPassword=request.data['currentpassword'].encode('ascii')
+        new_pass = str(request.data["updatedpassword"])
+        updated_pass=Register.password_check(self,new_pass)
+        if updated_pass:
+            return Response({"success":False,"message":"wrong password format"})
+       
+        try:
+            user = RegisteredUsers.objects.get(id=id)
+        except:
+            return Response({"success": False, "message": "User with the given email does not exist"})
+
+        if bcrypt.checkpw(currentPassword, user.password.encode("ascii")):
+            salt = bcrypt.gensalt()
+            hashed_password = bcrypt.hashpw(password=request.data['updatedpassword'].encode("ascii"), salt=salt)
+            user.password=hashed_password.decode("ascii")
+            user.save()
+            return Response({"sucess":True,"message":"Password changed successfully."})
+
+        else:
+            return Response({"success": False, "message": "Current password is incorrect."})
+
+           

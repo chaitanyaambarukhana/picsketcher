@@ -1,16 +1,16 @@
 from django.db import models
 
-# from registration.models import RegisteredUsers
-
 # Create your models here.
 
 
 class ImageStorage(models.Model):
-    # userdetails= models.ForeignKey(RegisteredUsers,on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='Assets/')
-
+    image = models.TextField(max_length=9999999999999999, blank=False, null=False)
+    filter = models.TextField(max_length=100,blank=False)
+    user_id = models.IntegerField(blank=False)
+    date_created = models.DateTimeField()
+    
     def __str__(self) -> str:
-        return self.email
+        return self.image
 
     class Meta:
-        db_table = "Image_storage_data"
+        db_table = "Images_database"
