@@ -10,5 +10,3 @@ RUN apt-get update
 RUN pip install --upgrade pip && pip install --no-cache -r requirements.txt && chmod 777 ./entrypoint.sh 
 
 EXPOSE 8000
-
-ENTRYPOINT ["./entrypoint.sh"]
